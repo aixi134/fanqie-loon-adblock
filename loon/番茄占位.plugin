@@ -9,17 +9,20 @@ skip-proxy = %APPEND% 127.0.0.1
 # 只做路由兜底，不 REJECT —— 让请求正常发出、正常返回
 URL-REGEX,^https?://ad\.zijieapi\.com/,Proxy
 URL-REGEX,^https?://reading\.snssdk\.com/reading/(commerceapi|reader/banner|reader/recommend|reader/bonus)/,Proxy
+URL-REGEX,^https?://ib\.snssdk\.com/api/ad/,Proxy
 
 [Script]
-# 穿山甲 banner / 插页
+# 穿山甲 banner / 插页 / 聚合 / 联盟召回
 http-response ^https?://ad\.zijieapi\.com/api/ad/v1/(banner|aggregate|recall_ads|byte_union) script-path=adPlaceholder.js, requires-body=true, timeout=10
 # 激励物料
 http-response ^https?://ad\.zijieapi\.com/api/ad/v1/(inspire|inspire_preload) script-path=adPlaceholder.js, requires-body=true, timeout=10
+# 预加载广告（ib.snssdk.com）
+http-response ^https?://ib\.snssdk\.com/api/ad/preload_ad/ script-path=adPlaceholder.js, requires-body=true, timeout=10
 # 章末商品卡 / 游戏卡 / 评论广告
 http-response ^https?://reading\.snssdk\.com/reading/commerceapi/(ad|chapter_end|game_center)/ script-path=adPlaceholder.js, requires-body=true, timeout=10
 # 底部 banner / 章末推荐 / 书末推荐
 http-response ^https?://reading\.snssdk\.com/reading/reader/(banner/mget|recommend/|book/lastpage/recommend) script-path=adPlaceholder.js, requires-body=true, timeout=10
 
 [MITM]
-hostname = %APPEND% ad.zijieapi.com, reading.snssdk.com
+hostname = %APPEND% ad.zijieapi.com, reading.snssdk.com, ib.snssdk.com
 skip-server-cert-verify = true
