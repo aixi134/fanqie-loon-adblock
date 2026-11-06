@@ -1,0 +1,21 @@
+# 构建产物
+*.ipa
+*.dylib
+*.orig
+
+# 解包与中间产物（体积大，含 App 二进制）
+work/
+analysis/
+
+# 证书 / 描述文件 / 凭据
+*.p12
+*.mobileprovision
+*.cer
+*.pem
+*.key
+certs/
+cert/
+
+# 系统
+.DS_Store
+Thumbs.db

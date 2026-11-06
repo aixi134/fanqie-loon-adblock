@@ -1,0 +1,52 @@
+#!name=番茄小说 全量去广告
+#!desc=拦截阅读页全部广告位：插页/章末卡/商品卡/推荐位/开屏/激励广告接口。正文与书架接口不受影响。
+#!author=local
+
+[General]
+# 保持 Loon 全量接管，避免部分域名被系统直连绕过
+skip-proxy = %APPEND% 127.0.0.1
+
+[Rule]
+# ══════════════════════════════════════════════════════════
+# 1. 纯广告联盟域名（与番茄业务域名无交集，整段拒绝最安全）
+# ══════════════════════════════════════════════════════════
+DOMAIN-SUFFIX,pglstatp.com,REJECT
+DOMAIN-SUFFIX,pangle.io,REJECT
+DOMAIN-SUFFIX,oceanengine.com,REJECT
+DOMAIN-SUFFIX,toutiaoapi.com,REJECT
+
+# ══════════════════════════════════════════════════════════
+# 2. 穿山甲广告接口（ad.zijieapi.com）
+#    阅读流 banner、插页、激励、聚合、联盟召回、开屏
+# ══════════════════════════════════════════════════════════
+URL-REGEX,^https?://ad\.zijieapi\.com/api/ad/v1/(banner|patch|inspire|inspire_preload|inspire_send|aggregate|recall_ads|byte_union|live_cmm),REJECT
+URL-REGEX,^https?://ad\.zijieapi\.com/api/ad/splash/,REJECT
+URL-REGEX,^https?://ad\.zijieapi\.com/api/ad/v2/ack/splash,REJECT
+URL-REGEX,^https?://ad\.zijieapi\.com/api/ad/union/sdk/get_ads,REJECT
+URL-REGEX,^https?://ad\.zijieapi\.com/api/incentive/,REJECT
+
+# ══════════════════════════════════════════════════════════
+# 3. 番茄商业化接口（reading.snssdk.com）
+#    全是精确路径；不碰 /reading/reader/full、/batch_full、/mult_full_image、
+#    也不碰 /api/novel/book/reader/content —— 正文永远不在拦截范围内
+# ══════════════════════════════════════════════════════════
+# 章末商品卡 / 游戏中心卡 / 评论广告 / 投放与补量
+URL-REGEX,^https?://reading\.snssdk\.com/reading/commerceapi/ad/,REJECT
+URL-REGEX,^https?://reading\.snssdk\.com/reading/commerceapi/chapter_end/resource,REJECT
+URL-REGEX,^https?://reading\.snssdk\.com/reading/commerceapi/game_center/,REJECT
+# 阅读器底部 banner / 章末推荐 / 书末推荐
+URL-REGEX,^https?://reading\.snssdk\.com/reading/reader/banner/mget,REJECT
+URL-REGEX,^https?://reading\.snssdk\.com/reading/reader/recommend/(item|book|lost_item),REJECT
+URL-REGEX,^https?://reading\.snssdk\.com/reading/reader/book/lastpage/recommend,REJECT
+# 阅读奖励 / 熄屏广告 / 看视频领时长
+URL-REGEX,^https?://reading\.snssdk\.com/reading/reader/bonus/,REJECT
+
+# ══════════════════════════════════════════════════════════
+# 4. 广告物料 CDN
+# ══════════════════════════════════════════════════════════
+URL-REGEX,^https?://[^/]*fqnovelpic\.com/obj/(tomato|novel-ad|ad)/,REJECT
+
+[MITM]
+# 只对需要按路径判断的两个域开启解密；其余流量保持原样
+hostname = %APPEND% ad.zijieapi.com, reading.snssdk.com
+skip-server-cert-verify = true

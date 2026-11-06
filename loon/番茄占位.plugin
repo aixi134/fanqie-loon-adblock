@@ -1,0 +1,25 @@
+#!name=番茄小说 广告改写为占位
+#!desc=不拦截广告请求，只把广告文案改写成「广告位已屏蔽」占位提示
+#!author=local
+
+[General]
+skip-proxy = %APPEND% 127.0.0.1
+
+[Rule]
+# 只做路由兜底，不 REJECT —— 让请求正常发出、正常返回
+URL-REGEX,^https?://ad\.zijieapi\.com/,Proxy
+URL-REGEX,^https?://reading\.snssdk\.com/reading/(commerceapi|reader/banner|reader/recommend|reader/bonus)/,Proxy
+
+[Script]
+# 穿山甲 banner / 插页
+http-response ^https?://ad\.zijieapi\.com/api/ad/v1/(banner|aggregate|recall_ads|byte_union) script-path=adPlaceholder.js, requires-body=true, timeout=10
+# 激励物料
+http-response ^https?://ad\.zijieapi\.com/api/ad/v1/(inspire|inspire_preload) script-path=adPlaceholder.js, requires-body=true, timeout=10
+# 章末商品卡 / 游戏卡 / 评论广告
+http-response ^https?://reading\.snssdk\.com/reading/commerceapi/(ad|chapter_end|game_center)/ script-path=adPlaceholder.js, requires-body=true, timeout=10
+# 底部 banner / 章末推荐 / 书末推荐
+http-response ^https?://reading\.snssdk\.com/reading/reader/(banner/mget|recommend/|book/lastpage/recommend) script-path=adPlaceholder.js, requires-body=true, timeout=10
+
+[MITM]
+hostname = %APPEND% ad.zijieapi.com, reading.snssdk.com
+skip-server-cert-verify = true
