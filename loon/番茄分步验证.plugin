@@ -1,0 +1,32 @@
+#!name=番茄小说 去广告（分步验证）
+#!desc=第一步只拦截穿山甲广告接口，验证正文不受影响后再逐条放开
+#!author=aixi134
+#!homepage=https://github.com/aixi134/fanqie-loon-adblock
+
+[General]
+skip-proxy = %APPEND% 127.0.0.1
+
+[Rule]
+# ┌───────────────────────────────────────────────────────────┐
+# │ STEP 1（默认启用）：只拦穿山甲，绝不碰 reading.snssdk.com │
+# │   打开一本书翻页，确认正文正常、插页广告消失               │
+# ├───────────────────────────────────────────────────────────┤
+# │ STEP 2（验证通过后放开）：把下面 STEP 2 的 # 去掉         │
+# │   再翻几页，确认正文仍然正常                               │
+# └───────────────────────────────────────────────────────────┘
+
+# ── STEP 1 ─────────────────────────────────────────────────
+DOMAIN-SUFFIX,pglstatp.com,REJECT
+DOMAIN-SUFFIX,pangle.io,REJECT
+URL-REGEX,^https?://ad\.zijieapi\.com/api/ad/v1/(banner|inspire|aggregate|recall_ads|byte_union),REJECT
+URL-REGEX,^https?://ib\.snssdk\.com/api/ad/,REJECT
+
+# ── STEP 2（默认注释，验证后再开）────────────────────────────
+# URL-REGEX,^https?://reading\.snssdk\.com/reading/commerceapi/chapter_end/resource,REJECT
+# URL-REGEX,^https?://reading\.snssdk\.com/reading/commerceapi/ad/,REJECT
+# URL-REGEX,^https?://reading\.snssdk\.com/reading/reader/banner/mget,REJECT
+
+[MITM]
+# 同样分步：STEP 1 只解密这两个域名
+hostname = %APPEND% ad.zijieapi.com, ib.snssdk.com
+skip-server-cert-verify = true
